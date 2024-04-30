@@ -1,0 +1,118 @@
+
+{% extends 'base.html' %}
+{% block title %}Roles{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% for role in roles %}
+    <h5>{{ role.name }}</h5>
+    <div class="col-md-4">
+            <select class="form-select permission-dropdown" data-role="{{ role.id }}">
+                <option value="">Select Permission</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <ul class="permission-list" data-role="{{ role.id }}">
+                {% for permission in role.permissions %}
+                <li>{{permission.permission__name}}<button class="btn" value="{{permission.permission_id}}" data-role="{{role.id}}" >Remove</button></li>
+                {% endfor %}
+                <!-- Permissions will be dynamically assigned here -->
+            </ul>
+        </div>
+      {% endfor %}
+
+
+    <a href="{% url 'create_role' %}">Create Role</a>
+</div>
+<script>
+    // Function to fetch permissions for a role via AJAX
+    function fetchPermissions(roleId) {
+        console.log(roleId)
+        $.ajax({
+            url: '{% url "fetch_permissions" %}',
+            type: 'GET',
+            data: {role_id: roleId},
+            success: function(data) {
+                // Populate the dropdown list with permissions
+                var dropdown = $('.permission-dropdown[data-role="' + roleId + '"]');
+                dropdown.empty();
+                dropdown.append('<option value="">Select Permission</option>');
+                $.each(data.permissions, function(index, permission) {
+                    dropdown.append('<option value="' + permission.id + '">' + permission.name + '</option>');
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching permissions:', error);
+            }
+        });
+    }
+
+    function assignPermissionToRole(roleId, permissionId) {
+        $.ajax({
+            url: '{% url "add_permissions" %}',
+            type: 'POST',
+            data: {
+                role_id: roleId,
+                permission_id: permissionId
+            },
+            success: function(data) {
+                // Display assigned permissions below the respective role
+                var permissionList = $('.permission-list[data-role="' + roleId + '"]');
+                permissionList.empty();
+                $.each(data.permissions, function(index, permission) {
+                    permissionList.append('<li>' + permission.permission__name + '<button class="btn" value="'+permission.permission__id+'" data-role="'+roleId+'">Remove</button></li>');
+                });
+                // Reset dropdown to "Select Permission"
+                var dropdown = $('.permission-dropdown[data-role="' + roleId + '"]');
+                dropdown.val('');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error assigning permission to role:', error);
+            }
+        });
+    }
+
+    function removePermissionToRole(roleId, permissionId) {
+        $.ajax({
+            url: '{% url "remove_permissions" %}',
+            type: 'POST',
+            data: {
+                role_id: roleId,
+                permission_id: permissionId
+            },
+            success: function(data) {
+                var permissionList = $('.permission-list[data-role="' + roleId + '"]');
+                permissionList.empty();
+                $.each(data.permissions, function(index, permission) {
+                    permissionList.append('<li>' + permission.permission__name + '<button class="btn" value="'+permission.permission__id+'" data-role="'+roleId+'">Remove</button></li>');
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error assigning permission to role:', error);
+            }
+        });
+    }
+    $(document).ready(function() {
+        $('.permission-dropdown').each(function() {
+            console.log("fetcch role id")
+            var roleId = $(this).data('role');
+            fetchPermissions(roleId);
+        });
+        $('.permission-dropdown').change(function() {
+            var roleId = $(this).data('role');
+            var permissionId = $(this).val();
+            assignPermissionToRole(roleId, permissionId);
+        });
+        $('.btn').click(function() {
+            var roleId = $(this).data('role');
+            var permissionId = $(this).val();
+            console.log(roleId,permissionId)
+            removePermissionToRole(roleId, permissionId);
+        });
+    });
+</script>
+
+{% endblock %}
+{% block extra_js %}
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Permissions{% endblock %}
+{% block content %}
+
+<h1>Permissions</h1>
+<ul>
+{% for permission in permissions %}
+    <li>{{ permission }}</li>
+{% endfor %}
+</ul>
+<a href="{% url 'create_permission' %}">Create Permission</a>
+{% endblock %}
+
+
+

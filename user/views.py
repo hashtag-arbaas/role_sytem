@@ -19,11 +19,11 @@ def signin(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')
+            return redirect('role_permission/home')
     else:
         form = LoginForm()
-    return render(request, 'user/login.html', {'form': form})
+        return render(request, 'user/login.html', {'form': form})
 
 def signout(request):
     logout(request)
-    return redirect('login')
+    return redirect('signin')

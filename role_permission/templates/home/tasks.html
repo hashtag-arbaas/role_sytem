@@ -1,0 +1,43 @@
+
+{% extends 'base.html' %}
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <ul>
+    {% for task in tasks %}
+    <li>{{ task.name }}</li><button class="btn" value={{ task.id }}>Remove</button>
+    {% endfor %}
+    </ul>
+
+
+
+    <a href="{% url 'create_tasks' %}">Create Task</a>
+</div>
+  
+<script>
+    
+    function removeTask(taskId) {
+        $.ajax({
+            url: ''+taskId,
+            type: 'DELETE',
+            success: function(data) {
+                
+                window.location.reload();
+
+            },
+            error: function(xhr, status, error) {
+                console.error('Error deleting:', error);
+            }
+        });
+    }
+    $('.btn').click(function() {
+        var taskId = $(this).val();
+        console.log(taskId)
+        removeTask(taskId);
+    });
+</script>
+{% endblock %}
+{% block extra_js %}
+
+{% endblock %}
