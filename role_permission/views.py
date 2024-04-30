@@ -9,7 +9,9 @@ def home(request):
 
     return render(request, 'home/home.html')
 
+def readme(request):
 
+    return render(request, 'home/readme.html')
 
 def role_list(request):
     roles = Role.objects.all().values('id', 'name')
